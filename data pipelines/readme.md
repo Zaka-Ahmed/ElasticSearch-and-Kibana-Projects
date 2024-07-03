@@ -103,3 +103,51 @@ POST zaka/_update_by_query/?pipeline=zaka_pipeline
 
 
 GET zaka/_search
+
+
+# Using Dotexpander Processor
+
+PUT /_ingest/pipeline/dot-expander-pipeline
+{
+  "description": "Used to flatten the nested fields",
+  "processors": [
+    {
+      "dot_expander": {
+        "field": "user.address.home"
+      }
+    },
+    {
+      "dot_expander": {
+        "field": "user.address.state"
+      }
+    }
+  ]
+}
+
+
+
+
+POST _ingest/pipeline/dot-expander-pipeline/_simulate
+{
+  "docs": [
+    {
+      "_index": "test_index",
+      "_id": "1",
+      "_source": {
+        "user.address.home": "Phase 8 DHA",
+        "user.address.state": "Pak"
+      }
+    }
+  ]
+}
+
+
+
+PUT test_index/_doc/1?pipeline=dot-expander-pipeline
+{
+  "user.address.home": "Clifton,Street 7",
+  "user.address.state": "Pak"
+}
+
+
+GET test_index/_doc/1
